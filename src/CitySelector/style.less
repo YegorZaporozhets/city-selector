@@ -2,4 +2,24 @@
     float: right;
 }
 
-// Your code...
+._selected {
+    background-color: #c3c3c3;
+}
+
+._hidden {
+    display: none;
+}
+
+#citySelector {
+    display: flex;
+
+    & > * {
+        margin: 0 2.5px;
+    }
+
+    & li {
+        list-style-type: none;
+        cursor: pointer;
+        margin: 5px 0;
+    }
+}
