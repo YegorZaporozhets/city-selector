@@ -2,6 +2,7 @@ require('./style.less');
 
 class CitySelector {
     constructor(options) {
+        this.elementId = options.elementId;
         this.$elem = $('#' + options.elementId);
         this.regionsUrl = options.regionsUrl;
         this.localitiesUrl = options.localitiesUrl;
@@ -12,42 +13,17 @@ class CitySelector {
     }
 
     init() {
-        this.$containerToShowState = $('#info');
-        this.$containerToShowRegion = this.$containerToShowState.find('#regionText');
-        this.$containerToShowCity = this.$containerToShowState.find('#localityText');
         this._createComponentMarkup();
+        $(document).trigger('createSelector_' + this.elementId);
     }
 
     destroy() {
         this.$elem.html('');
-        this._clearAndHideState();
+        $(document).trigger('destroySelector_' + this.elementId);
     }
 
-    _clearAndHideState() {
-        this.$containerToShowState.addClass('_hidden');
-        this._selectedRegion = null;
-        this._selectedCity = null;
-        this._updateState();
-    }
-
-    _showState() {
-        this.$containerToShowState.removeClass('_hidden');
-
-        this._updateState();
-    }
-
-    _updateState() {
-        if (this._selectedRegion) {
-            this.$containerToShowRegion.html(this._selectedRegion);
-        } else {
-            this.$containerToShowRegion.html('');
-        }
-
-        if (this._selectedCity) {
-            this.$containerToShowCity.html(this._selectedCity);
-        } else {
-            this.$containerToShowCity.html('');
-        }
+    _triggerCustomEvent() {
+        $(document).trigger('changeStateSelector_' + this.elementId, [this._selectedRegion, this._selectedCity]);
     }
 
     _initComponentEvents() {
@@ -78,7 +54,7 @@ class CitySelector {
             this._selectedRegion = regionId;
             this._selectedCity = null;
 
-            this._updateState();
+            this._triggerCustomEvent();
         });
 
         this.$citiesSelector.on('click', ev => {
@@ -96,7 +72,7 @@ class CitySelector {
             this._selectedCity = this.cacheCities
                 .find(item => item.id === regionId).list[cityIndex];
 
-            this._updateState();
+            this._triggerCustomEvent();
         });
 
         this.$saveSelect.on('click', () => this._saveAndSendLocality.call(this));
@@ -129,7 +105,6 @@ class CitySelector {
         this.$saveSelect = this.$elem.find('[data-save-select]');
 
         this._initComponentEvents();
-        this._showState();
     }
 
     _createRegionsSelectorMarkup(regions) {
